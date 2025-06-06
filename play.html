@@ -116,32 +116,22 @@
     const responses = [];
     let currentIndex = 0;
 
-    async function loadLenses() {
-      const dummyLensMap = {
-        1: "Gratitude Lens",
-        2: "Synchronicity Lens",
-        3: "Curiosity Lens",
-        4: "Playful Lens",
-        5: "Comparison Lens",
-        6: "Memory Lens",
-        7: "Foresight Lens",
-        8: "Compassion Lens",
-        9: "Wonder Lens",
-        10: "Micro-Magic Lens"
-      };
-      for (const [id, name] of Object.entries(dummyLensMap)) {
-        const checkbox = document.createElement('input');
-        checkbox.type = 'checkbox';
-        checkbox.value = id;
-        checkbox.id = `ws-${id}`;
-        const label = document.createElement('label');
-        label.htmlFor = checkbox.id;
-        label.appendChild(checkbox);
-        label.append(` ${name}`);
-        lensListEl.appendChild(label);
+      async function loadLenses() {
+        const res = await fetch("/lenses");
+        const lensData = await res.json();
+        lensData.forEach(({ id, name }) => {
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.value = id;
+          checkbox.id = `ws-${id}`;
+          const label = document.createElement('label');
+          label.htmlFor = checkbox.id;
+          label.appendChild(checkbox);
+          label.append(` ${name}`);
+          lensListEl.appendChild(label);
+        });
       }
-    }
-
+    
     function submitEvent() {
       const text = document.getElementById('eventInput').value;
       const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))

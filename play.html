@@ -6,38 +6,90 @@
   <title>Play with WonderSparks</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
       max-width: 700px;
       margin: auto;
       padding: 2rem;
+      background-color: #f9f9fb;
+      color: #333;
     }
     textarea {
       width: 100%;
-      height: 100px;
+      height: 120px;
       margin-bottom: 1rem;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      resize: vertical;
     }
     .lens-list {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.5rem;
+      gap: 0.75rem;
       margin-bottom: 1rem;
     }
     .lens-list label {
+      background-color: #e0e0e0;
+      padding: 0.5rem 0.75rem;
+      border-radius: 20px;
+      cursor: pointer;
       display: flex;
       align-items: center;
       gap: 0.4rem;
       font-size: 0.95rem;
+      transition: background-color 0.3s;
+    }
+    .lens-list label:hover {
+      background-color: #d4d4d4;
+    }
+    .lens-list input[type=checkbox] {
+      accent-color: #333;
+    }
+    button {
+      background: linear-gradient(to right, #4CAF50, #43A047);
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      font-size: 1rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.3s ease, transform 0.2s;
+    }
+    button:hover {
+      background: linear-gradient(to right, #45a049, #388E3C);
+      transform: translateY(-1px);
     }
     .response-card {
       border: 1px solid #ccc;
-      padding: 1rem;
-      margin-top: 1rem;
+      padding: 1.2rem;
+      margin-top: 2rem;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
       display: none;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    .response-card h3 {
+      margin-top: 0;
+      color: #4CAF50;
     }
     .nav-btns {
       margin-top: 1rem;
       display: flex;
       justify-content: space-between;
+      gap: 1rem;
+    }
+    .nav-btns button {
+      background-color: #2196F3;
+      flex: 1;
+    }
+    .nav-btns button:hover {
+      background-color: #0b7dda;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -65,7 +117,6 @@
     let currentIndex = 0;
 
     async function loadLenses() {
-      const res = await fetch('/reflections'); // just to load lens IDs dynamically
       const dummyLensMap = {
         1: "Gratitude Lens",
         2: "Synchronicity Lens",

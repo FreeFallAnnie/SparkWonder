@@ -12,6 +12,13 @@ app = Flask(__name__)
 def play_page():
     return send_file("play.html")
 
+@app.route("/lenses", methods=["GET"])
+def get_lenses():
+    sparks = load_wondersparks()
+    return jsonify([
+        {"id": k, "name": v["name"]} for k, v in sparks.items()
+    ])
+
 # --- Setup ---
 
 load_dotenv()

@@ -13,6 +13,12 @@
       background-color: #f9f9fb;
       color: #333;
     }
+    h1 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 1.5rem;
+      color: #4CAF50;
+    }
     textarea {
       width: 100%;
       height: 120px;
@@ -57,7 +63,6 @@
       transition: background 0.3s ease, transform 0.2s;
     }
     button:hover {
-      background: linear-gradient(to right, #45a049, #388E3C);
       transform: translateY(-1px);
     }
     .response-card {
@@ -81,11 +86,12 @@
       gap: 1rem;
     }
     .nav-btns button {
-      background-color: #2196F3;
       flex: 1;
-    }
-    .nav-btns button:hover {
-      background-color: #0b7dda;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 1rem;
+      border-radius: 6px;
     }
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(10px); }
@@ -94,7 +100,7 @@
   </style>
 </head>
 <body>
-  <h1>Play with WonderSparks</h1>
+  <h1>✨ Play with WonderSparks ✨</h1>
   <textarea id="eventInput" placeholder="Write your everyday event..."></textarea>
   <div class="lens-list" id="lensList">
     <!-- Checkboxes inserted here dynamically -->
@@ -106,8 +112,8 @@
     <p id="responseText"></p>
     <p><strong>Color:</strong> <span id="responseColor"></span></p>
     <div class="nav-btns">
-      <button onclick="prevResponse()">⬅️ Prev</button>
-      <button onclick="nextResponse()">Next ➡️</button>
+      <button id="prevBtn" onclick="prevResponse()">⬅️ Prev</button>
+      <button id="nextBtn" onclick="nextResponse()">Next ➡️</button>
     </div>
   </div>
 
@@ -116,22 +122,37 @@
     const responses = [];
     let currentIndex = 0;
 
-      async function loadLenses() {
-        const res = await fetch("/lenses");
-        const lensData = await res.json();
-        lensData.forEach(({ id, name }) => {
-          const checkbox = document.createElement('input');
-          checkbox.type = 'checkbox';
-          checkbox.value = id;
-          checkbox.id = `ws-${id}`;
-          const label = document.createElement('label');
-          label.htmlFor = checkbox.id;
-          label.appendChild(checkbox);
-          label.append(` ${name}`);
-          lensListEl.appendChild(label);
-        });
-      }
-    
+    const colorMap = {
+      PINK: '#e91e63',
+      PURPLE: '#9c27b0',
+      BLUE: '#2196F3',
+      GREEN: '#4CAF50',
+      YELLOW: '#FFEB3B',
+      ORANGE: '#FF9800',
+      SILVER: '#9E9E9E',
+      GOLD: '#FFD700',
+      BLACK: '#212121'
+    };
+
+    async function loadLenses() {
+      const res = await fetch("/lenses");
+      const lensData = await res.json();
+      lensData.forEach(({ id, name, color }) => {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = id;
+        checkbox.id = `ws-${id}`;
+
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.style.backgroundColor = colorMap[color.toUpperCase()] || '#e0e0e0';
+
+        label.appendChild(checkbox);
+        label.append(` ${name}`);
+        lensListEl.appendChild(label);
+      });
+    }
+
     function submitEvent() {
       const text = document.getElementById('eventInput').value;
       const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
@@ -142,7 +163,7 @@
         return;
       }
 
-      responses.length = 0; // Clear old
+      responses.length = 0;
       currentIndex = 0;
 
       selected.forEach(async (ws_id) => {
@@ -167,6 +188,10 @@
       document.getElementById('lensName').textContent = r.lens_name;
       document.getElementById('responseText').textContent = r.response;
       document.getElementById('responseColor').textContent = r.color;
+
+      const color = colorMap[r.color.toUpperCase()] || '#2196F3';
+      document.getElementById('prevBtn').style.backgroundColor = color;
+      document.getElementById('nextBtn').style.backgroundColor = color;
     }
 
     function nextResponse() {

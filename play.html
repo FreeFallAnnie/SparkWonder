@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Play with WonderSparks</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 700px;
+      margin: auto;
+      padding: 2rem;
+    }
+    textarea {
+      width: 100%;
+      height: 100px;
+      margin-bottom: 1rem;
+    }
+    .lens-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .lens-list label {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.95rem;
+    }
+    .response-card {
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-top: 1rem;
+      display: none;
+    }
+    .nav-btns {
+      margin-top: 1rem;
+      display: flex;
+      justify-content: space-between;
+    }
+  </style>
+</head>
+<body>
+  <h1>Play with WonderSparks</h1>
+  <textarea id="eventInput" placeholder="Write your everyday event..."></textarea>
+  <div class="lens-list" id="lensList">
+    <!-- Checkboxes inserted here dynamically -->
+  </div>
+  <button onclick="submitEvent()">Submit</button>
+
+  <div class="response-card" id="responseCard">
+    <h3 id="lensName"></h3>
+    <p id="responseText"></p>
+    <p><strong>Color:</strong> <span id="responseColor"></span></p>
+    <div class="nav-btns">
+      <button onclick="prevResponse()">⬅️ Prev</button>
+      <button onclick="nextResponse()">Next ➡️</button>
+    </div>
+  </div>
+
+  <script>
+    const lensListEl = document.getElementById('lensList');
+    const responses = [];
+    let currentIndex = 0;
+
+    async function loadLenses() {
+      const res = await fetch('/reflections'); // just to load lens IDs dynamically
+      const dummyLensMap = {
+        1: "Gratitude Lens",
+        2: "Synchronicity Lens",
+        3: "Curiosity Lens",
+        4: "Playful Lens",
+        5: "Comparison Lens",
+        6: "Memory Lens",
+        7: "Foresight Lens",
+        8: "Compassion Lens",
+        9: "Wonder Lens",
+        10: "Micro-Magic Lens"
+      };
+      for (const [id, name] of Object.entries(dummyLensMap)) {
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.value = id;
+        checkbox.id = `ws-${id}`;
+        const label = document.createElement('label');
+        label.htmlFor = checkbox.id;
+        label.appendChild(checkbox);
+        label.append(` ${name}`);
+        lensListEl.appendChild(label);
+      }
+    }
+
+    function submitEvent() {
+      const text = document.getElementById('eventInput').value;
+      const selected = Array.from(document.querySelectorAll('input[type=checkbox]:checked'))
+        .map(cb => parseInt(cb.value));
+
+      if (!text.trim() || selected.length === 0) {
+        alert("Please enter an event and select at least one WonderSpark.");
+        return;
+      }
+
+      responses.length = 0; // Clear old
+      currentIndex = 0;
+
+      selected.forEach(async (ws_id) => {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ event: text, ws_id })
+        });
+        const data = await res.json();
+        responses.push({ ...data, ws_id });
+        if (responses.length === 1) {
+          showResponse(0);
+        }
+      });
+    }
+
+    function showResponse(index) {
+      if (responses.length === 0) return;
+      const card = document.getElementById('responseCard');
+      const r = responses[index];
+      card.style.display = 'block';
+      document.getElementById('lensName').textContent = r.lens_name;
+      document.getElementById('responseText').textContent = r.response;
+      document.getElementById('responseColor').textContent = r.color;
+    }
+
+    function nextResponse() {
+      if (responses.length > 0 && currentIndex < responses.length - 1) {
+        currentIndex++;
+        showResponse(currentIndex);
+      }
+    }
+
+    function prevResponse() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showResponse(currentIndex);
+      }
+    }
+
+    loadLenses();
+  </script>
+</body>
+</html>

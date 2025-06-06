@@ -4,6 +4,11 @@ import os
 import csv
 import openai
 from dotenv import load_dotenv
+from flask import send_file
+
+@app.route("/play")
+def play_page():
+    return send_file("play.html")
 
 # --- Setup ---
 app = Flask(__name__)
